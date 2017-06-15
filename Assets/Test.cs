@@ -8,8 +8,8 @@ public class Test : MonoBehaviour {
 	public float radius = 20;
 	public int seed;
 	Vector2[] points;
-	Vector2[] hullPoints;
-	QuickHull hull;
+	List<int> hullPointIndices;
+
 	void Start () {
 		points = new Vector2[numPoints];
 		Random.InitState (seed);
@@ -17,23 +17,22 @@ public class Test : MonoBehaviour {
 			points [i] = Random.insideUnitCircle * radius;
 		}
 
-		hull = new QuickHull (points,this);
-		//hullPoints
+		IHull hull = new QuickHull ();
+		hullPointIndices = hull.GetHullPoints (points);
+
 	}
 	
 
 	void OnDrawGizmos () {
-		if (points != null) {
-			Gizmos.color = Color.white;
-			foreach (Vector2 p in points) {
-				Gizmos.DrawSphere (p, .3f);
-			}
-		}
-		if (hull != null) {
-			Gizmos.color = Color.red;
-			foreach (Vector2 p in hull.hullPoints) {
-				Gizmos.DrawSphere (p, .4f);
+		if (points != null && hullPointIndices != null) {
+			for (int i = 0; i < points.Length; i++) {
+				Gizmos.color = (hullPointIndices.Contains(i))?Color.red:Color.white;
+				Gizmos.DrawSphere (points[i], .3f);
 			}
 		}
 	}
+}
+
+public interface IHull {
+	List<int> GetHullPoints(Vector2[] points);
 }
