@@ -8,6 +8,7 @@ public class QuickHull {
 	public List<Vector2> hullPoints;
 	int callNum;
 	MonoBehaviour m;
+	int globCn;
 	float t = 2.5f;
 
 	public QuickHull(Vector2[] points,MonoBehaviour m) {
@@ -61,23 +62,22 @@ public class QuickHull {
 
 	IEnumerator FindHull(List<int> pointIndices, int indexA, int indexB) {
 		callNum++;
-
+		globCn++;
 		int cN = callNum;
 		yield return new WaitForSeconds ((callNum-1) * t);
-		Debug.Log("Start: " +cN + "after: " + ((cN-1) * t));
+		//Debug.Log("Start: " +cN + "after: " + ((cN-1) * t));
 		//Debug.Log("End: " +cN);
 		if (pointIndices.Count == 0) {
-			Debug.Log ("break");
 			yield break;
 		}
 		// find furthest point from line AB
 		float furthestVal = float.MinValue;
 		int furthestIndex = 0;
-		for (int i = 0; i < pointIndices.Count; i++) {
-			float pseudoDst = PseudoDistanceFromPointToLine (allPoints [indexA], allPoints [indexB], allPoints[pointIndices [i]]);
+		foreach (int i in pointIndices) {
+			float pseudoDst = PseudoDistanceFromPointToLine (allPoints [indexA], allPoints [indexB], allPoints[i]);
 			if (pseudoDst > furthestVal) {
 				furthestVal = pseudoDst;
-				furthestIndex = pointIndices [i];
+				furthestIndex = i;
 			}
 		}
 			
@@ -92,20 +92,21 @@ public class QuickHull {
 		Vector2 testPoint = allPoints [indexA] + (triCentre - allPoints [indexB]);
 		int signToLeftOfAP = SideOfLine (allPoints [indexA], allPoints [indexB], testPoint);
 
-		for (int i = 0; i < pointIndices.Count; i++) {
+		foreach (int i in pointIndices) {
 			if (i != furthestIndex) {
-				if (!PointInTriangle (allPoints [indexA], allPoints [indexB], allPoints [furthestIndex], allPoints[pointIndices [i]])) {
+				if (!PointInTriangle (allPoints [indexA], allPoints [indexB], allPoints [furthestIndex], allPoints[i])) {
 					Color col = Color.white;
-					if (SideOfLine (allPoints [indexA], allPoints [furthestIndex], allPoints [pointIndices [i]]) == signToLeftOfAP) {
+					if (SideOfLine (allPoints [indexA], allPoints [furthestIndex], allPoints [i]) == signToLeftOfAP) {
 						col = Color.green;
-						sideOne.Add (pointIndices [i]);
+						sideOne.Add (i);
 					}else {
 						col = Color.red;
-						sideTwo.Add (pointIndices [i]);
+						sideTwo.Add (i);
 					}
+			
 
-					Debug.DrawLine (allPoints [pointIndices [i]]-Vector2.up *.5f, allPoints [pointIndices [i]]+Vector2.up *.5f, col, t);
-					Debug.DrawLine (allPoints [pointIndices [i]]-Vector2.right *.5f, allPoints [pointIndices [i]]+Vector2.right *.5f, col, t);
+					Debug.DrawLine (allPoints [i]-Vector2.up *.5f, allPoints [i]+Vector2.up *.5f, col, t);
+					Debug.DrawLine (allPoints [i]-Vector2.right *.5f, allPoints [i]+Vector2.right *.5f, col, t);
 				}
 			}
 		}
@@ -113,7 +114,9 @@ public class QuickHull {
 
 		hullPoints.Add (allPoints [furthestIndex]);
 		if (cN != 1)
-		callNum--;
+			callNum--;
+
+		Debug.Log (globCn);
 		Debug.DrawLine (allPoints [indexA], allPoints [indexB], Color.white, t);
 		Debug.DrawLine (allPoints [indexA], allPoints [furthestIndex], Color.green, t);
 		Debug.DrawLine (allPoints [indexB], allPoints [furthestIndex], Color.red, t);
