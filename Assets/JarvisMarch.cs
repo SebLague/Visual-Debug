@@ -4,8 +4,20 @@ using UnityEngine;
 
 public class JarvisMarch : IHull {
 
-	public List<int> GetHullPoints(Vector2[] points) {
-		List<int> hullPoints = new List<int> ();
+	public List<Vector2> pointsOnHull { get; set; }
+	public List<Vector2> pointsNotOnHull {get; set; }
+
+	public JarvisMarch(Vector2[] points) {
+		Recalculate (points);
+	}
+
+	public void Recalculate(Vector2[] points) {
+		GetHullPoints (points);
+	}
+
+	void GetHullPoints(Vector2[] points) {
+		pointsOnHull = new List<Vector2> ();
+		pointsNotOnHull = new List<Vector2> (points);
 
 		float leftmostX = float.MaxValue;
 		int firstHullPointIndex = 0;
@@ -23,8 +35,8 @@ public class JarvisMarch : IHull {
 		while (true) {
 
 
-			hullPoints.Add (pointOnHullIndex);
-
+			pointsOnHull.Add (points[pointOnHullIndex]);
+			pointsNotOnHull.Remove (points[pointOnHullIndex]);
 			int endpointIndex = 0;
 
 			for (int i = 1; i < points.Length; i++) {
@@ -39,8 +51,8 @@ public class JarvisMarch : IHull {
 				break;
 			}
 		}
-
-		return hullPoints;
 	}
+
+
 
 }

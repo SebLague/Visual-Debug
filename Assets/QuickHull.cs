@@ -4,13 +4,27 @@ using UnityEngine;
 
 public class QuickHull : IHull {
 
+
+	public List<Vector2> pointsOnHull { get; set; }
+	public List<Vector2> pointsNotOnHull { get; set; }
+
+
 	Vector2[] allPoints;
-	List<int> hullPoints;
 
 
-	public List<int> GetHullPoints(Vector2[] points) {
+	public QuickHull(Vector2[] points) {
+		Recalculate (points);
+	}
+
+	public void Recalculate(Vector2[] points) {
+		GetHullPoints (points);
+	}
+
+
+	void GetHullPoints(Vector2[] points) {
 		this.allPoints = points;
-		hullPoints = new List<int> ();
+		pointsOnHull = new List<Vector2> ();
+		pointsNotOnHull = new List<Vector2> ();
 
 		int leftmostIndex = 0;
 		int rightmostIndex = 0;
@@ -29,8 +43,8 @@ public class QuickHull : IHull {
 			}
 		}
 
-		hullPoints.Add (leftmostIndex);
-		hullPoints.Add (rightmostIndex);
+		pointsOnHull.Add (allPoints[leftmostIndex]);
+			pointsOnHull.Add (allPoints[rightmostIndex]);
 
 
 		Vector2 dir = (points [leftmostIndex] - points [rightmostIndex]).normalized;
@@ -50,8 +64,6 @@ public class QuickHull : IHull {
 
 		FindHull (sideOne, leftmostIndex, rightmostIndex);
 		FindHull (sideTwo, leftmostIndex, rightmostIndex);
-
-		return hullPoints;
 	
 	}
 
@@ -84,18 +96,20 @@ public class QuickHull : IHull {
 
 		foreach (int i in pointIndices) {
 			if (i != furthestIndex) {
-				if (!Geometry.PointInTriangle (allPoints [indexA], allPoints [indexB], allPoints [furthestIndex], allPoints[i])) {
+				if (!Geometry.PointInTriangle (allPoints [indexA], allPoints [indexB], allPoints [furthestIndex], allPoints [i])) {
 					if (Geometry.SideOfLine (allPoints [indexA], allPoints [furthestIndex], allPoints [i]) == signToLeftOfAP) {
 						sideOne.Add (i);
-					}else {
+					} else {
 						sideTwo.Add (i);
 					}
+				} else {
+					pointsNotOnHull.Add (allPoints [i]);
 				}
 			}
 		}
 
 
-		hullPoints.Add (furthestIndex);
+		pointsOnHull.Add (allPoints[furthestIndex]);
 
 
 		if (sideOne.Count > 0) {
@@ -106,6 +120,7 @@ public class QuickHull : IHull {
 		}
 
 	}
+
 
 
 }
