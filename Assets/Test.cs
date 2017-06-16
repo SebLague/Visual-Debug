@@ -19,6 +19,8 @@ public class Test : MonoBehaviour {
 	Vector2[] points;
 	IHull hull;
 
+	public bool display;
+
 	void Start () {
 		
 		points = new Vector2[numPoints];
@@ -47,13 +49,13 @@ public class Test : MonoBehaviour {
 				hull.Recalculate (points);
 			}
 			sw.Stop ();
-			print ("time: " + sw.ElapsedMilliseconds + "  iterations: " + iterations);
+			print ("time: " + sw.ElapsedMilliseconds + "  iterations: " + iterations + " Algorithm: " + algorithm.ToString());
 		}
 	}
 	
 
 	void OnDrawGizmos () {
-		if (hull != null) {
+		if (hull != null && display) {
 			Gizmos.color = Color.red;
 			foreach (Vector2 v in hull.pointsOnHull) {
 				Gizmos.DrawSphere (v, .5f);
