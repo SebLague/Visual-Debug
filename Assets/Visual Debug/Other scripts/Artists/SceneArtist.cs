@@ -1,26 +1,31 @@
-﻿
-using UnityEngine;
+﻿using UnityEngine;
 
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
-namespace VisualDebugging
+
+namespace VisualDebugging.Internal
 {
-    public class SceneArtist
-    {
-        public Color colour;
-        public string artistType = typeof(SceneArtist).ToString();
+	public class SceneArtist
+	{
 
-        public SceneArtist(Color colour)
-        {
-            this.colour = colour;
-        }
+		public string artistType;
+		[SerializeField] protected Color activeDrawColour;
+		[SerializeField] protected Color inactiveDrawColour;
+        public bool showWhenInBackground = true;
 
-        public virtual void Draw()
-        {
+		public void SetColour(Color activeDrawColour, Color backgroundDrawColour)
+		{
+			this.activeDrawColour = activeDrawColour;
+			this.inactiveDrawColour = backgroundDrawColour;
+		}
+
+
+		public virtual void Draw(bool isActive)
+		{
 #if UNITY_EDITOR
-            Handles.color = colour;
+			Handles.color = (isActive) ? activeDrawColour : inactiveDrawColour;
 #endif
-        }
-    }
+		}
+	}
 }

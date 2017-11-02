@@ -1,33 +1,39 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 
-namespace VisualDebugging
+namespace VisualDebugging.Internal
 {
     [System.Serializable]
     public class Frame
     {
         public string description;
 
-        [SerializeField] bool dontErase; // should this frame be erased before drawing the next?
+        [SerializeField] bool keepInBackground; // should this frame be erased before drawing the next?
         [SerializeField] int myFrameIndex;
         [System.NonSerialized] public List<SceneArtist> artists;
+       
 
         public Frame(string description, bool dontErase, int frameIndex)
         {
             this.description = description;
-            this.dontErase = dontErase;
+            this.keepInBackground = dontErase;
             this.myFrameIndex = frameIndex;
         }
 
         public void Draw(int currentFrameIndex)
         {
-            if (currentFrameIndex == myFrameIndex || (dontErase && currentFrameIndex > myFrameIndex))
+            bool isCurrentFrame = currentFrameIndex == myFrameIndex;
+            bool showFrame = isCurrentFrame || (keepInBackground && currentFrameIndex > myFrameIndex);
+            if (showFrame)
             {
                 if (artists != null)
                 {
                     foreach (SceneArtist artist in artists)
                     {
-                        artist.Draw();
+                        if (isCurrentFrame || artist.showWhenInBackground)
+                        {
+                            artist.Draw(isCurrentFrame);
+                        }
                     }
                 }
 

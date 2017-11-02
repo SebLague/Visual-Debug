@@ -7,24 +7,25 @@ using System.Linq;
 using UnityEditor;
 #endif
 
-namespace VisualDebugging
+namespace VisualDebugging.Internal
 {
     public class LineArtist : SceneArtist
     {
         public Vector3[] lineSegments;
 
-        public LineArtist(Color colour, IEnumerable<Vector3> lineSegments) : base(colour)
+        public LineArtist(IEnumerable<Vector3> lineSegments)
         {
             artistType = typeof(LineArtist).ToString();
             this.lineSegments = lineSegments.ToArray();
+
         }
 
-        public override void Draw()
+        public override void Draw(bool isActive)
         {
-            base.Draw();
-            #if UNITY_EDITOR
+#if UNITY_EDITOR
+			base.Draw(isActive);
             Handles.DrawLines(lineSegments);
-            #endif
+#endif
         }
     }
 }

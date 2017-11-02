@@ -17,7 +17,11 @@ namespace VisualDebugging
         public const string darkGreen = "116720FF";
 
         public const string lightGrey = "A7A7A7FF";
-        public const string darkGrey = "1C1C1CFF";
+        public const string darkGrey = "5C5C5CFF";
+        public const string veryDarkGrey = "1C1C1CFF";
+
+        public const string white = "FFFFFFFF";
+        public const string black = "000000FF";
 
         public static Color HexStringToColour(string hex)
         {

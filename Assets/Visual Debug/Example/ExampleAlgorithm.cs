@@ -1,29 +1,52 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿#define DEBUG_EXAMPLE_ALGORITHM
 using UnityEngine;
 
-public class ExampleAlgorithm {
-
-    // Returns an array containing the points nearest to one another out of the given set
-    Vector2[] FindClosestPairOfPoints(Vector2[] points)
+namespace VisualDebugging.Example
+{
+    public static class ExampleAlgorithm
     {
-        Vector2[] closestPointPair = new Vector2[2];
-        float bestDst = float.MaxValue;
-
-        for (int i = 0; i < points.Length; i++)
+        // Returns an array containing the points nearest to one another out of the given set
+        public static Vector3[] FindClosestPairOfPoints(Vector3[] points)
         {
-            for (int j = i; j < points.Length; j++)
+#if DEBUG_EXAMPLE_ALGORITHM
+            VisualDebug.Initialize();
+            VisualDebug.BeginFrame("All points", true);
+            VisualDebug.DrawPoints(points, .1f);
+#endif
+            Vector3[] closestPointPair = new Vector3[2];
+            float bestDst = float.MaxValue;
+
+            for (int i = 0; i < points.Length; i++)
             {
-                float dst = Vector2.Distance(points[i], points[j]);
-                if (dst < bestDst)
+                for (int j = i + 1; j < points.Length; j++)
                 {
-                    bestDst = dst;
-                    closestPointPair[0] = points[i];
-                    closestPointPair[1] = points[j];
+                    float dst = Vector3.Distance(points[i], points[j]);
+                    if (dst < bestDst)
+                    {
+                        bestDst = dst;
+                        closestPointPair[0] = points[i];
+                        closestPointPair[1] = points[j];
+                    }
+#if DEBUG_EXAMPLE_ALGORITHM
+                    VisualDebug.BeginFrame("Compare dst", true);
+                    VisualDebug.SetColour(Colours.lightRed, Colours.veryDarkGrey);
+                    VisualDebug.DrawPoint(points[i], .1f);
+                    VisualDebug.DrawLineSegment(points[i], points[j]);
+                    VisualDebug.DontShowNextElementWhenFrameIsInBackground();
+                    VisualDebug.SetColour(Colours.lightGreen);
+                    VisualDebug.DrawLineSegmentWithLabel(closestPointPair[0], closestPointPair[1], bestDst.ToString());
+#endif
                 }
             }
-        }
 
-        return closestPointPair;
+#if DEBUG_EXAMPLE_ALGORITHM
+            VisualDebug.BeginFrame("Finished");
+            VisualDebug.SetColour(Colours.lightGreen);
+            VisualDebug.DrawPoints(closestPointPair, .15f);
+            VisualDebug.DrawLineSegmentWithLabel(closestPointPair[0], closestPointPair[1], bestDst.ToString());
+            VisualDebug.Save();
+#endif
+            return closestPointPair;
+        }
     }
 }

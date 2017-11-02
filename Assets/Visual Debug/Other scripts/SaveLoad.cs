@@ -2,13 +2,22 @@
 using System.IO;
 using System.Linq;
 
-namespace VisualDebugging
+namespace VisualDebugging.Internal
 {
+
+    /*
+     * Handles saving/loading of Frame arrays.
+     */
+    
     public static class SaveLoad
     {
 
+        public static bool HasNewSaveWaiting { get; private set; }
+
         public static void Save(Frame[] frames)
         {
+			HasNewSaveWaiting = true;
+
             SaveData saveData = new SaveData(frames);
             string saveString = JsonUtility.ToJson(saveData);
 
@@ -24,6 +33,8 @@ namespace VisualDebugging
 
         public static Frame[] Load()
         {
+            HasNewSaveWaiting = false;
+
             StreamReader reader = new StreamReader(SavePath);
             string saveString = reader.ReadToEnd();
             reader.Close();

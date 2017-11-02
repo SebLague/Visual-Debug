@@ -5,7 +5,7 @@ using System.Linq;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
-namespace VisualDebugging
+namespace VisualDebugging.Internal
 {
 
     public class SphereArtist : SceneArtist
@@ -14,7 +14,7 @@ namespace VisualDebugging
         public float radius;
         public bool drawWireframe;
 
-        public SphereArtist(Color colour, IEnumerable<Vector3> points, float radius, bool drawWireframe = false) : base(colour)
+        public SphereArtist(IEnumerable<Vector3> points, float radius, bool drawWireframe = false)
         {
             this.artistType = typeof(SphereArtist).ToString();
             this.points = points.ToArray();
@@ -22,10 +22,11 @@ namespace VisualDebugging
             this.drawWireframe = drawWireframe;
         }
 
-        public override void Draw()
+        public override void Draw(bool isActive)
         {
-            base.Draw();
-            #if UNITY_EDITOR
+#if UNITY_EDITOR
+			base.Draw(isActive);
+
             foreach (Vector3 v in points)
             {
                 if (drawWireframe)
@@ -36,10 +37,11 @@ namespace VisualDebugging
                 }
                 else
                 {
-                    Handles.SphereHandleCap(0, v, Quaternion.identity, radius, EventType.Repaint);
+                    float size = radius * 2;
+                    Handles.SphereHandleCap(0, v, Quaternion.identity, size, EventType.Repaint);
                 }
             }
-            #endif
+#endif
         }
     }
 }

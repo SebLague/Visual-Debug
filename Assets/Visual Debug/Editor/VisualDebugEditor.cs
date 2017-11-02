@@ -4,68 +4,70 @@ using UnityEngine;
 using UnityEditor;
 using System.Linq;
 
-namespace VisualDebugging
+namespace VisualDebugging.Internal
 {
-    [CustomEditor(typeof(VisualDebugger))]
+    [CustomEditor(typeof(DebugViewer))]
     public class VisualDebugEditor : Editor
     {
 
-        VisualDebugger visualDebugger;
+        DebugViewer viewer;
         bool isPlaying;
         float previousFrameTime;
 
         public override void OnInspectorGUI()
         {
-            Frame currentFrame = visualDebugger.CurrentFrame;
+
+            Frame currentFrame = viewer.CurrentFrame;
 
             GUILayout.Space(5);
-            GUILayout.Label(string.Format("Frame {0} of {1}", visualDebugger.frameIndex + 1, visualDebugger.frames.Count));
+            GUILayout.Label(string.Format("Frame {0} of {1}", viewer.frameIndex + 1, viewer.NumFrames));
 
-            GUI.enabled = !isPlaying;
-            visualDebugger.frameIndex = EditorGUILayout.IntSlider(visualDebugger.frameIndex + 1, 0, visualDebugger.frames.Count) - 1;
+            // Frame number slider
+            GUI.enabled = !isPlaying && viewer.NumFrames > 0;
+            viewer.frameIndex = EditorGUILayout.IntSlider(viewer.frameIndex + 1, 0, viewer.NumFrames) - 1;
             GUILayout.Space(6);
 
-            GUI.enabled = true;
+            // Play/pause button
             GUILayout.BeginHorizontal();
             string playPauseButtonText = (isPlaying) ? "Pause" : "Play";
+            GUI.enabled = viewer.NumFrames > 0;
             if (GUILayout.Button(playPauseButtonText))
             {
                 isPlaying = !isPlaying;
             }
 
+            // Time between frames and loop toggle
+            GUI.enabled = true;
             float defaultLabelWidth = EditorGUIUtility.labelWidth;
             EditorGUIUtility.labelWidth = 35;
             EditorGUIUtility.fieldWidth = 20;
-            visualDebugger.timeBetweenFrames = EditorGUILayout.FloatField("Time", visualDebugger.timeBetweenFrames);
-            visualDebugger.loop = EditorGUILayout.Toggle("Loop", visualDebugger.loop);
+            viewer.timeBetweenFrames = EditorGUILayout.FloatField("Time", viewer.timeBetweenFrames);
+            viewer.timeBetweenFrames = Mathf.Clamp(viewer.timeBetweenFrames, 0, float.MaxValue);
+
+            viewer.loop = EditorGUILayout.Toggle("Loop", viewer.loop);
             EditorGUIUtility.labelWidth = defaultLabelWidth;
             GUILayout.EndHorizontal();
 
-            GUI.enabled = !isPlaying;
+            // Next/previous frame buttons
+            GUI.enabled = !isPlaying && viewer.NumFrames > 0;
             if (GUILayout.Button("Next Frame"))
             {
-                if (visualDebugger.frameIndex < visualDebugger.frames.Count - 1)
+                if (viewer.frameIndex < viewer.NumFrames - 1)
                 {
-                    visualDebugger.frameIndex++;
+                    viewer.frameIndex++;
                 }
             }
 
             if (GUILayout.Button("Previous Frame"))
             {
-                if (visualDebugger.frameIndex >= 0)
+                if (viewer.frameIndex >= 0)
                 {
-                    visualDebugger.frameIndex--;
+                    viewer.frameIndex--;
                 }
             }
 
-            if (GUILayout.Button("Clear"))
-            {
-                visualDebugger.frameIndex = -1;
-                visualDebugger.Clear();
-            }
-
+            // Description box
             GUI.enabled = true;
-
             string description = (currentFrame == null) ? "" : currentFrame.description;
             GUILayout.Label("Description:");
             EditorGUILayout.HelpBox(description, MessageType.None);
@@ -76,31 +78,39 @@ namespace VisualDebugging
             }
         }
 
-        private void OnSceneGUI()
-        {
-            Event guiEvent = Event.current;
-            if (guiEvent.type == EventType.Repaint)
-            {
-                for (int i = 0; i <= visualDebugger.frameIndex; i++)
-                {
-                    if (i < visualDebugger.frames.Count)
-                    {
-                        visualDebugger.frames[i].Draw(visualDebugger.frameIndex);
+		private void OnSceneGUI()
+		{
+			Event guiEvent = Event.current;
 
-                    }
-                }
-            }
-        }
+            // Draw all frames up to current frame index
+			if (guiEvent.type == EventType.Repaint)
+			{
+				for (int i = 0; i <= viewer.frameIndex; i++)
+				{
+					if (i < viewer.NumFrames)
+					{
+						viewer.frames[i].Draw(viewer.frameIndex);
+
+					}
+				}
+			}
+		}
 
         void EditorUpdate()
         {
-            if (isPlaying && EditorApplication.timeSinceStartup > previousFrameTime + visualDebugger.timeBetweenFrames)
+            if (SaveLoad.HasNewSaveWaiting)
             {
-                visualDebugger.frameIndex = (visualDebugger.frameIndex + 1) % visualDebugger.frames.Count;
+                viewer.Load();
+            }
+
+            // Handle playback
+            if (isPlaying && EditorApplication.timeSinceStartup > previousFrameTime + viewer.timeBetweenFrames)
+            {
+                viewer.frameIndex = (viewer.frameIndex + 1) % viewer.NumFrames;
                 previousFrameTime = (float)EditorApplication.timeSinceStartup;
                 SceneView.RepaintAll();
 
-                if (visualDebugger.frameIndex == visualDebugger.frames.Count - 1 && !visualDebugger.loop)
+                if (viewer.frameIndex == viewer.NumFrames - 1 && !viewer.loop)
                 {
                     isPlaying = false;
                 }
@@ -109,32 +119,17 @@ namespace VisualDebugging
 
         private void OnEnable()
         {
-            visualDebugger = target as VisualDebugger;
+            viewer = target as DebugViewer;
+            viewer.Load();
 
-            if (SaveLoad.HasSaveFile())
-            {
-                visualDebugger.frames = SaveLoad.Load().ToList();
-            }
-
-            if (visualDebugger.frameIndex >= visualDebugger.frames.Count)
-            {
-                visualDebugger.frameIndex = -1;
-            }
             EditorApplication.update += EditorUpdate;
             Tools.hidden = true;
         }
-
-
 
         private void OnDisable()
         {
             Tools.hidden = false;
             EditorApplication.update -= EditorUpdate;
-
-            if (visualDebugger.requiresSave)
-            {
-                SaveLoad.Save(visualDebugger.frames.ToArray());
-            }
         }
 
     }
