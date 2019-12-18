@@ -14,7 +14,7 @@ namespace VisualDebugging.Internal
         public float radius;
         public bool drawWireframe;
 
-        public SphereArtist(IEnumerable<Vector3> points, float radius, bool drawWireframe = false)
+        public SphereArtist( IEnumerable<Vector3> points, float radius, bool drawWireframe = false )
         {
             this.artistType = typeof(SphereArtist).ToString();
             this.points = points.ToArray();
@@ -22,10 +22,10 @@ namespace VisualDebugging.Internal
             this.drawWireframe = drawWireframe;
         }
 
-        public override void Draw(bool isActive)
+        public override void Draw( bool isActive )
         {
 #if UNITY_EDITOR
-			base.Draw(isActive);
+            base.Draw(isActive);
 
             foreach (Vector3 v in points)
             {
@@ -44,4 +44,5 @@ namespace VisualDebugging.Internal
 #endif
         }
     }
+
 }
