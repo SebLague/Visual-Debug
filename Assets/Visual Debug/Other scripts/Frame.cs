@@ -11,7 +11,6 @@ namespace VisualDebugging.Internal
         [SerializeField] bool keepInBackground; // should this frame be erased before drawing the next?
         [SerializeField] int myFrameIndex;
         [System.NonSerialized] public List<SceneArtist> artists;
-       
 
         public Frame(string description, bool dontErase, int frameIndex)
         {

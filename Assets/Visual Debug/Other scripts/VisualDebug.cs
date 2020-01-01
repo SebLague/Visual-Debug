@@ -52,7 +52,7 @@ namespace VisualDebugging
 		{
             debugData.dontShowNextElementWhenFrameIsInBackground = false;
             debugData.frames.Add(new Frame(description, keepInBackground, debugData.frames.Count));
-
+            
 		}
 
 		[Conditional(runningInUnityEditor)]
@@ -119,7 +119,8 @@ namespace VisualDebugging
             debugData.currentFontSize = DebugData.defaultFontSize;
 		}
 
-		static void AddArtistToCurrentFrame(SceneArtist artist)
+
+        static void AddArtistToCurrentFrame(SceneArtist artist)
 		{
 			if (debugData.frames.Count == 0)
 			{
@@ -130,8 +131,8 @@ namespace VisualDebugging
             artist.showWhenInBackground = !debugData.dontShowNextElementWhenFrameIsInBackground;
 			debugData.frames[debugData.frames.Count - 1].AddArtist(artist);
 		}
-
-		static IEnumerable<Vector3> EnumerableVector2ToVector3(IEnumerable<Vector2> v2)
+        
+        static IEnumerable<Vector3> EnumerableVector2ToVector3(IEnumerable<Vector2> v2)
 		{
 			return v2.Select(v => new Vector3(v.x, v.y, 0));
 		}

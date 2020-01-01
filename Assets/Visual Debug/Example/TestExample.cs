@@ -17,7 +17,6 @@ namespace VisualDebugging.Example
         public void Run()
         {
             ExampleAlgorithm.FindClosestPairOfPoints(GeneratePoints());
-
         }
 
         Vector3[] GeneratePoints()

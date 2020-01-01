@@ -9,12 +9,12 @@ namespace VisualDebugging
 {
     public static partial class VisualDebug
     {
-
+        #region Points
         /*
          * Draw points 
          */
-        
-		[Conditional(runningInUnityEditor)]
+
+        [Conditional(runningInUnityEditor)]
 		public static void DrawPoint(Vector3 position, float radius, bool wireframe = false)
 		{
 			DrawPoints(new Vector3[] { position }, radius, wireframe);
@@ -51,21 +51,73 @@ namespace VisualDebugging
 			DrawPoint(position, radius, wireframe);
             debugData.dontShowNextElementWhenFrameIsInBackground = dontShowInBackground;
             DrawTextWithHeightOffset(position + Vector3.up * radius, text, debugData.currentFontSize, true,1);
-		}
+        }
 
-        
-		[Conditional(runningInUnityEditor)]
-		public static void DrawPointWithLabel(Vector3 position, float radius, string text, bool wireframe = false)
-		{
+        [Conditional(runningInUnityEditor)]
+        public static void DrawPointWithLabel( Vector3 position, float radius, string text, bool wireframe = false )
+        {
             DrawPointWithLabel(position, radius, text, debugData.currentFontSize, wireframe);
-		}
+        }
+        #endregion
 
+        #region Dots
+        /*
+         * Draw Dots 
+         */
 
-		/*
+        [Conditional(runningInUnityEditor)]
+        public static void DrawDot( Vector3 position, float radius, bool wireframe = false )
+        {
+            DrawDots(new Vector3[] { position }, radius, wireframe);
+        }
+
+        [Conditional(runningInUnityEditor)]
+        public static void DrawDots( IEnumerable<Vector3> points, float radius, bool wireframe = false )
+        {
+            AddArtistToCurrentFrame(new SphereArtist(points, radius, wireframe));
+        }
+
+        [Conditional(runningInUnityEditor)]
+        public static void DrawDots( IEnumerable<Vector2> points, float radius, bool wireframe = false )
+        {
+            DrawDots(EnumerableVector2ToVector3(points), radius, wireframe);
+        }
+
+        [Conditional(runningInUnityEditor)]
+        public static void DrawDots( float radius, bool wireframe, params Vector2[] points )
+        {
+            DrawDots(EnumerableVector2ToVector3(points), radius, wireframe);
+        }
+
+        [Conditional(runningInUnityEditor)]
+        public static void DrawDots( float radius, bool wireframe, params Vector3[] points )
+        {
+            DrawDots(points, radius, wireframe);
+        }
+
+        [Conditional(runningInUnityEditor)]
+        public static void DrawDotWithLabel( Vector3 position, float radius, string text, int fontSize, bool wireframe = false )
+        {
+            bool dontShowInBackground = debugData.dontShowNextElementWhenFrameIsInBackground;
+            DrawDot(position, radius, wireframe);
+            debugData.dontShowNextElementWhenFrameIsInBackground = dontShowInBackground;
+            DrawTextWithHeightOffset(position + Vector3.up * radius, text, debugData.currentFontSize, true, 1);
+        }
+
+        [Conditional(runningInUnityEditor)]
+        public static void DrawDotWithLabel( Vector3 position, float radius, string text, bool wireframe = false )
+        {
+            DrawDotWithLabel(position, radius, text, debugData.currentFontSize, wireframe);
+        }
+        #endregion
+
+        #region Lines
+
+        /*
          * Draw Lines
          */
 
-		[Conditional(runningInUnityEditor)]
+        [Conditional(runningInUnityEditor)]
 		public static void DrawLineSegment(Vector3 lineStart, Vector3 lineEnd)
 		{
             AddArtistToCurrentFrame(new LineArtist(new Vector3[] { lineStart, lineEnd }));
@@ -128,12 +180,14 @@ namespace VisualDebugging
 		{
 			DrawLine(EnumerableVector2ToVector3(points), joinFirstAndLast);
 		}
+        #endregion
 
-		/*
+        #region Labels
+        /*
          * Labels
          */
 
-		[Conditional(runningInUnityEditor)]
+        [Conditional(runningInUnityEditor)]
 		public static void DrawTextWithHeightOffset(Vector3 position, string text, int fontSize, bool centreAlign, float heightOffset)
 		{
             AddArtistToCurrentFrame(new LabelArist(position, text, centreAlign, fontSize,heightOffset));
@@ -150,15 +204,65 @@ namespace VisualDebugging
 		{
             DrawText(position, text, debugData.currentFontSize, centreAlign);
 		}
+#endregion
 
-		/*
+        #region Misc
+        /*
          * Misc
          */
-
-		[Conditional(runningInUnityEditor)]
+        [Conditional(runningInUnityEditor)]
 		public static void DrawCube(Vector3 centre, float size)
 		{
 			AddArtistToCurrentFrame(new CubeArtist(centre, size));
 		}
-	}
+
+        /// <summary>
+        /// Draw a convex polygon of points ordered in a counter-clockwise manner.
+        /// </summary>
+        /// <param name="points">The points defining the polygon.</param>
+        [Conditional(runningInUnityEditor)]
+        public static void DrawConvexPolygon( IEnumerable<Vector3> points)
+        {
+            AddArtistToCurrentFrame(new PolygonArtist(points));
+        }
+
+        /// <summary>
+        /// Draw a convex polygon of points ordered in a counter-clockwise manner.
+        /// </summary>
+        /// <param name="points">The points defining the polygon.</param>
+        [Conditional(runningInUnityEditor)]
+        public static void DrawConvexPolygon( IEnumerable<Vector2> points)
+        {
+            DrawConvexPolygon(EnumerableVector2ToVector3(points));
+        }
+
+
+        /// <summary>
+        /// Draw a line segment ending in an arrow pointing in the line's direction.
+        /// </summary>
+        /// <param name="lineStart">The starting point of the line arrow segment.</param>
+        /// <param name="lineEnd">The end point of the line arrow segment.</param>
+        /// <param name="size">the size of the arrow head.</param>
+        [Conditional(runningInUnityEditor)]
+        public static void DrawArrow( Vector3 lineStart, Vector3 lineEnd, float size )
+        {
+            DrawLineSegment(lineStart, lineEnd);
+            AddArtistToCurrentFrame(new ConeArtist(lineEnd, (lineEnd-lineStart).normalized, size));
+        }
+
+        /// <summary>
+        /// Draw a line segment ending in an arrow pointing in the line's direction.
+        /// </summary>
+        /// <param name="lineStart">The starting point of the line arrow segment.</param>
+        /// <param name="lineEnd">The end point of the line arrow segment.</param>
+        /// <param name="size">The size of the arrow head.</param>
+        /// <param name="text">The label text.</param>
+        [Conditional(runningInUnityEditor)]
+        public static void DrawArrowWithLabel( Vector3 lineStart, Vector3 lineEnd, float size, string text)
+        {
+            DrawLineSegmentWithLabel(lineStart, lineEnd, text);
+            AddArtistToCurrentFrame(new ConeArtist(lineEnd, (lineEnd - lineStart).normalized, size));
+        }
+        #endregion
+    }
 }
