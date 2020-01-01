@@ -59,6 +59,7 @@ namespace VisualDebugging
             DrawPointWithLabel(position, radius, text, debugData.currentFontSize, wireframe);
         }
         #endregion
+
         #region Dots
         /*
          * Draw Dots 
@@ -181,6 +182,7 @@ namespace VisualDebugging
 		}
         #endregion
 
+        #region Labels
         /*
          * Labels
          */
@@ -202,30 +204,45 @@ namespace VisualDebugging
 		{
             DrawText(position, text, debugData.currentFontSize, centreAlign);
 		}
+#endregion
 
-		/*
+        #region Misc
+        /*
          * Misc
          */
-
-		[Conditional(runningInUnityEditor)]
+        [Conditional(runningInUnityEditor)]
 		public static void DrawCube(Vector3 centre, float size)
 		{
 			AddArtistToCurrentFrame(new CubeArtist(centre, size));
 		}
 
-
+        /// <summary>
+        /// Draw a convex polygon of points ordered in a counter-clockwise manner.
+        /// </summary>
+        /// <param name="points">The points defining the polygon.</param>
         [Conditional(runningInUnityEditor)]
         public static void DrawConvexPolygon( IEnumerable<Vector3> points)
         {
             AddArtistToCurrentFrame(new PolygonArtist(points));
         }
 
+        /// <summary>
+        /// Draw a convex polygon of points ordered in a counter-clockwise manner.
+        /// </summary>
+        /// <param name="points">The points defining the polygon.</param>
         [Conditional(runningInUnityEditor)]
         public static void DrawConvexPolygon( IEnumerable<Vector2> points)
         {
             DrawConvexPolygon(EnumerableVector2ToVector3(points));
         }
 
+
+        /// <summary>
+        /// Draw a line segment ending in an arrow pointing in the line's direction.
+        /// </summary>
+        /// <param name="lineStart">The starting point of the line arrow segment.</param>
+        /// <param name="lineEnd">The end point of the line arrow segment.</param>
+        /// <param name="size">the size of the arrow head.</param>
         [Conditional(runningInUnityEditor)]
         public static void DrawArrow( Vector3 lineStart, Vector3 lineEnd, float size )
         {
@@ -233,11 +250,19 @@ namespace VisualDebugging
             AddArtistToCurrentFrame(new ConeArtist(lineEnd, (lineEnd-lineStart).normalized, size));
         }
 
+        /// <summary>
+        /// Draw a line segment ending in an arrow pointing in the line's direction.
+        /// </summary>
+        /// <param name="lineStart">The starting point of the line arrow segment.</param>
+        /// <param name="lineEnd">The end point of the line arrow segment.</param>
+        /// <param name="size">The size of the arrow head.</param>
+        /// <param name="text">The label text.</param>
         [Conditional(runningInUnityEditor)]
         public static void DrawArrowWithLabel( Vector3 lineStart, Vector3 lineEnd, float size, string text)
         {
             DrawLineSegmentWithLabel(lineStart, lineEnd, text);
             AddArtistToCurrentFrame(new ConeArtist(lineEnd, (lineEnd - lineStart).normalized, size));
         }
+        #endregion
     }
 }

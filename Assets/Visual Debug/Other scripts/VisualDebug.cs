@@ -50,13 +50,8 @@ namespace VisualDebugging
 		[Conditional(runningInUnityEditor)]
         public static void BeginFrame(string description, bool keepInBackground = false)
 		{
-            // NOTE: KEEP THE FRAME OF REFERENCE (SPACE)
-            Matrix4x4 frameSpace = Matrix4x4.identity;
-            if (debugData.frames.Count > 0)
-                frameSpace = debugData.frames.Last().frameSpace;
-
             debugData.dontShowNextElementWhenFrameIsInBackground = false;
-            debugData.frames.Add(new Frame(description, keepInBackground, debugData.frames.Count) { frameSpace = frameSpace });
+            debugData.frames.Add(new Frame(description, keepInBackground, debugData.frames.Count));
             
 		}
 
@@ -124,11 +119,6 @@ namespace VisualDebugging
             debugData.currentFontSize = DebugData.defaultFontSize;
 		}
 
-        [Conditional(runningInUnityEditor)]
-        public static void FrameTRS( Matrix4x4 trs )
-        {
-            debugData.frames[debugData.frames.Count - 1].frameSpace *= trs;
-        }
 
         static void AddArtistToCurrentFrame(SceneArtist artist)
 		{
@@ -141,9 +131,7 @@ namespace VisualDebugging
             artist.showWhenInBackground = !debugData.dontShowNextElementWhenFrameIsInBackground;
 			debugData.frames[debugData.frames.Count - 1].AddArtist(artist);
 		}
-
-        public static Frame CurrentFrame => debugData.frames[debugData.frames.Count - 1];
-
+        
         static IEnumerable<Vector3> EnumerableVector2ToVector3(IEnumerable<Vector2> v2)
 		{
 			return v2.Select(v => new Vector3(v.x, v.y, 0));

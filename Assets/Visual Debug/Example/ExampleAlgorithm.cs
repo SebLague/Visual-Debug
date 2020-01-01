@@ -31,7 +31,7 @@ namespace VisualDebugging.Example
                     VisualDebug.BeginFrame("Compare dst", true);
                     VisualDebug.SetColour(Colours.lightRed, Colours.veryDarkGrey);
                     VisualDebug.DrawPoint(points[i], .1f);
-                    VisualDebug.DrawLineSegment(points[i], points[j]);
+                    VisualDebug.DrawArrow(points[i], points[j], .1f);
                     VisualDebug.DontShowNextElementWhenFrameIsInBackground();
                     VisualDebug.SetColour(Colours.lightGreen);
                     VisualDebug.DrawLineSegmentWithLabel(closestPointPair[0], closestPointPair[1], bestDst.ToString());
